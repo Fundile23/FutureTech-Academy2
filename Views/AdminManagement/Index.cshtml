@@ -1,0 +1,119 @@
+﻿@model IEnumerable<FutureTechAcademy.Models.AdminUser>
+
+@{
+    ViewData["Title"] = "Manage Admins";
+    var masterEmail = ViewBag.MasterAdminEmail as string;
+}
+
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content" data-aos="fade-up">
+            <div class="admin-badge">Admin Portal</div>
+            <h1>Manage Administrators</h1>
+            <p class="text-muted">Add or remove admin users who can access the student management system</p>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Add Admin Form -->
+    <div class="card-modern" data-aos="fade-up">
+        <div class="card-header-modern">
+            <h5><i class="fas fa-user-plus me-2"></i>Add New Admin</h5>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="AddAdmin" method="post" class="row g-3">
+                <div class="col-md-8">
+                    <input type="email" name="email" class="form-control" placeholder="Enter email address" required />
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary-custom w-100">
+                        <i class="fas fa-plus-circle me-2"></i> Add Admin
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admins List -->
+    <div class="card-modern" data-aos="fade-up" data-aos-delay="100">
+        <div class="card-header-modern d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-user-shield me-2"></i>Current Administrators</h5>
+            <span class="text-muted small">@((Model?.Count() ?? 0) + 1) total admins</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Added By</th>
+                        <th>Added At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Master Admin -->
+                    <tr>
+                        <td class="fw-bold">
+                            @masterEmail
+                            <span class="status-badge status-active ms-2">Master Admin</span>
+                        </td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td><span class="text-muted">Cannot remove</span></td>
+                    </tr>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var admin in Model)
+                        {
+                            <tr>
+                                <td>@admin.Email</td>
+                                <td>@admin.AddedBy</td>
+                                <td>@admin.AddedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                <td>
+                                    <form asp-action="RemoveAdmin" method="post" onsubmit="return confirm('Remove @admin.Email from admins?')">
+                                        <input type="hidden" name="email" value="@admin.Email" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash-alt"></i> Remove
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                No additional admins added
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-controller="Students" asp-action="Index" class="action-btn">
+            <i class="fas fa-arrow-left me-2"></i> Back to Student Management
+        </a>
+    </div>
+</div>

@@ -1,0 +1,183 @@
+﻿@model IEnumerable<FutureTechAcademy.Models.Student>
+
+@{
+    ViewData["Title"] = "Student Management";
+
+    // Calculate stats
+    var totalStudents = Model?.Count() ?? 0;
+    var activeStudents = Model?.Count(s => s.EnrolmentStatus == "Active") ?? 0;
+    var inactiveStudents = Model?.Count(s => s.EnrolmentStatus == "Inactive") ?? 0;
+}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content" data-aos="fade-up">
+            <div class="admin-badge">Admin Portal</div>
+            <h1>Student Management</h1>
+            <p class="text-muted">Manage student records, track enrolment status, and update profiles</p>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Stats Cards -->
+    <div class="stats-grid" data-aos="fade-up">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-number">@totalStudents</div>
+            <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+            <div class="stat-number text-success">@activeStudents</div>
+            <div class="stat-label">Active Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-user-slash"></i></div>
+            <div class="stat-number text-danger">@inactiveStudents</div>
+            <div class="stat-label">Inactive Students</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions" data-aos="fade-up" data-aos-delay="100">
+        <a asp-action="Create" class="action-btn">
+            <i class="fas fa-plus-circle"></i> Add New Student
+        </a>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" data-aos="fade-up">
+            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" data-aos="fade-up">
+            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Search Form -->
+    <div class="card-modern" data-aos="fade-up" data-aos-delay="150">
+        <div class="card-header-modern">
+            <h5><i class="fas fa-search me-2"></i>Search Students</h5>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Search" method="post" class="row g-3">
+                <div class="col-md-10">
+                    <input type="text" name="searchTerm" class="form-control" placeholder="Search by Name, Surname, Email, or ID..." />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary-custom w-100">
+                        <i class="fas fa-search me-2"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="card-modern" data-aos="fade-up" data-aos-delay="200">
+        <div class="card-header-modern d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-table me-2"></i>All Students</h5>
+            <span class="text-muted small">@totalStudents records found</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Mobile Number</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ProfileImageUrl))
+                                    {
+                                        <img src="@item.ProfileImageUrl" alt="Profile" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                            <span class="fw-bold">@item.FirstName[0]@item.LastName[0]</span>
+                                        </div>
+                                    }
+                                </td>
+                                <td class="fw-semibold">@item.FirstName</td>
+                                <td>@item.LastName</td>
+                                <td>@item.Email</td>
+                                <td>@item.MobileNumber</td>
+                                <td>
+                                    @if (item.EnrolmentStatus == "Active")
+                                    {
+                                        <span class="status-badge status-active">
+                                            <i class="fas fa-circle me-1" style="font-size: 0.6rem;"></i> Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-inactive">
+                                            <i class="fas fa-circle me-1" style="font-size: 0.6rem;"></i> Inactive
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Edit">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fas fa-user-graduate fa-3x mb-3 d-block"></i>
+                                No students found. Click "Add New Student" to create one.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+}
